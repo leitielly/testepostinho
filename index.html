@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta - Sistema de Agendamento Municipal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .logo-container {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 12px;
+            padding: 15px 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #2a5298 0%, #3a6bc5 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+        }
+        .input-field {
+            border: 1px solid #d1d5db;
+            transition: border 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    
+    <!-- Tela de Login (inicial) -->
+    <div id="loginScreen" class="w-full max-w-md">
+        <div class="logo-container text-center mb-8">
+            <div class="flex flex-col items-center">
+                <div class="bg-white rounded-full p-4 mb-4 shadow-lg">
+                    <i class="fas fa-stethoscope text-4xl text-blue-800"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Prefeitura Municipal de</h1>
+                <h2 class="text-3xl font-bold text-white">Porangatu - GO</h2>
+                <p class="text-blue-200 mt-2">Sistema de Agendamento de Consultas</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-8 card-shadow">
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Acessar Sistema</h3>
+            <p class="text-gray-600 mb-6">Entre com suas credenciais para agendar consultas</p>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="email">E-mail</label>
+                    <input type="email" id="email" class="w-full p-3 border rounded-lg input-field" placeholder="seu.email@exemplo.com" value="usuario@exemplo.com">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="password">Senha</label>
+                    <input type="password" id="password" class="w-full p-3 border rounded-lg input-field" placeholder="Digite sua senha" value="123456">
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 rounded">
+                        <label for="remember" class="ml-2 text-gray-700">Lembrar-me</label>
+                    </div>
+                    <a href="#" class="text-blue-700 hover:text-blue-900 font-medium text-sm">Esqueceu a senha?</a>
+                </div>
+                
+                <button id="loginButton" class="w-full py-3 rounded-lg text-white font-bold btn-primary">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Entrar no Sistema
+                </button>
+                
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Não possui cadastro?</p>
+                    <button id="goToRegisterButton" class="mt-2 py-2 px-6 border border-blue-700 text-blue-700 rounded-lg font-medium hover:bg-blue-50 transition">
+                        <i class="fas fa-user-plus mr-2"></i> Criar Conta
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                <p class="text-gray-500 text-sm">Sistema proposto por <span class="font-bold text-blue-800">Angatu Sistemas</span></p>
+                <p class="text-gray-400 text-xs mt-1">Proposta de Transformação Digital - Gestão Estratégica de Fluxo e Acesso à Saúde Municipal</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela de Cadastro -->
+    <div id="registerScreen" class="w-full max-w-md hidden">
+        <div class="logo-container text-center mb-8">
+            <div class="flex flex-col items-center">
+                <div class="bg-white rounded-full p-4 mb-4 shadow-lg">
+                    <i class="fas fa-user-plus text-4xl text-blue-800"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Criar Nova Conta</h1>
+                <p class="text-blue-200 mt-2">Cadastro rápido e seguro</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-8 card-shadow">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Formulário de Cadastro</h3>
+                <button id="backToLoginButton" class="text-blue-700 hover:text-blue-900">
+                    <i class="fas fa-arrow-left mr-1"></i> Voltar
+                </button>
+            </div>
+            
+            <p class="text-gray-600 mb-6">Preencha os dados abaixo para criar sua conta no sistema municipal de saúde</p>
+            
+            <div class="space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium" for="nome">Nome</label>
+                        <input type="text" id="nome" class="w-full p-3 border rounded-lg input-field" placeholder="Seu nome">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-medium" for="sobrenome">Sobrenome</label>
+                        <input type="text" id="sobrenome" class="w-full p-3 border rounded-lg input-field" placeholder="Seu sobrenome">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="cpf">CPF</label>
+                    <input type="text" id="cpf" class="w-full p-3 border rounded-lg input-field" placeholder="000.000.000-00">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="emailCadastro">E-mail</label>
+                    <input type="email" id="emailCadastro" class="w-full p-3 border rounded-lg input-field" placeholder="seu.email@exemplo.com">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" class="w-full p-3 border rounded-lg input-field" placeholder="(62) 9XXXX-XXXX">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="senhaCadastro">Senha</label>
+                    <input type="password" id="senhaCadastro" class="w-full p-3 border rounded-lg input-field" placeholder="Crie uma senha segura">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2 font-medium" for="confirmarSenha">Confirmar Senha</label>
+                    <input type="password" id="confirmarSenha" class="w-full p-3 border rounded-lg input-field" placeholder="Digite a senha novamente">
+                </div>
+                
+                <div class="flex items-start">
+                    <input type="checkbox" id="termos" class="h-5 w-5 text-blue-600 rounded mt-1">
+                    <label for="termos" class="ml-2 text-gray-700 text-sm">
+                        Concordo com os <a href="#" class="text-blue-700 hover:text-blue-900 font-medium">termos de uso</a> e <a href="#" class="text-blue-700 hover:text-blue-900 font-medium">política de privacidade</a> do sistema.
+                    </label>
+                </div>
+                
+                <button id="registerButton" class="w-full py-3 rounded-lg text-white font-bold btn-primary">
+                    <i class="fas fa-check-circle mr-2"></i> Criar Conta
+                </button>
+                
+                <p class="text-gray-500 text-sm text-center mt-4">
+                    <i class="fas fa-info-circle mr-1"></i> Este é um protótipo. O cadastro não será processado.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela de Dashboard com médicos e vagas -->
+    <div id="dashboardScreen" class="w-full max-w-6xl hidden">
+        <div class="logo-container flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Sistema de Agendamento</h1>
+                <p class="text-blue-200">Prefeitura Municipal de Porangatu - GO</p>
+            </div>
+            <div class="flex items-center">
+                <div class="bg-white rounded-full p-2 mr-3">
+                    <i class="fas fa-user-md text-blue-800 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-white font-medium">Usuário Demo</p>
+                    <button id="logoutButton" class="text-blue-200 hover:text-white text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Vagas de Consulta Disponíveis</h2>
+            <p class="text-gray-600">Selecione uma vaga disponível para agendar sua consulta</p>
+            
+            <div class="flex items-center mt-4 bg-blue-50 p-4 rounded-lg">
+                <i class="fas fa-info-circle text-blue-600 text-xl mr-3"></i>
+                <p class="text-blue-800">
+                    <span class="font-bold">Transparência total:</span> Todas as vagas disponíveis na rede municipal são exibidas em tempo real.
+                </p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            <!-- Vaga 1 -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Dr. Carlos Silva</h3>
+                        <p class="text-gray-600">Clínico Geral</p>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">Disponível</span>
+                </div>
+                
+                <div class="mb-5">
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-hospital text-blue-600 mr-2"></i>
+                        <span class="font-medium">Postinho de Saúde Central</span>
+                    </div>
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                        <span>15 de Julho, 2026</span>
+                    </div>
+                    <div class="flex items-center text-gray-700">
+                        <i class="fas fa-clock text-blue-600 mr-2"></i>
+                        <span>08:30 - 09:00</span>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-600 mb-5">
+                    <p><i class="fas fa-map-marker-alt mr-1"></i> Rua das Flores, 123 - Centro</p>
+                    <p class="mt-1"><i class="fas fa-phone mr-1"></i> (62) 3433-1001</p>
+                </div>
+                
+                <button class="w-full py-3 rounded-lg text-white font-bold btn-primary">
+                    <i class="fas fa-calendar-check mr-2"></i> Agendar Esta Vaga
+                </button>
+            </div>
+            
+            <!-- Vaga 2 -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Dra. Ana Santos</h3>
+                        <p class="text-gray-600">Pediatra</p>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">2 Vagas</span>
+                </div>
+                
+                <div class="mb-5">
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-hospital text-blue-600 mr-2"></i>
+                        <span class="font-medium">UBS Vila Nova</span>
+                    </div>
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                        <span>16 de Julho, 2026</span>
+                    </div>
+                    <div class="flex items-center text-gray-700">
+                        <i class="fas fa-clock text-blue-600 mr-2"></i>
+                        <span>14:00 - 14:30</span>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-600 mb-5">
+                    <p><i class="fas fa-map-marker-alt mr-1"></i> Av. Brasil, 456 - Vila Nova</p>
+                    <p class="mt-1"><i class="fas fa-phone mr-1"></i> (62) 3433-2002</p>
+                </div>
+                
+                <button class="w-full py-3 rounded-lg text-white font-bold btn-primary">
+                    <i class="fas fa-calendar-check mr-2"></i> Agendar Esta Vaga
+                </button>
+            </div>
+            
+            <!-- Vaga 3 -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Dr. Marcos Oliveira</h3>
+                        <p class="text-gray-600">Cardiologista</p>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">Disponível</span>
+                </div>
+                
+                <div class="mb-5">
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-hospital text-blue-600 mr-2"></i>
+                        <span class="font-medium">Posto de Saúde São José</span>
+                    </div>
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                        <span>17 de Julho, 2026</span>
+                    </div>
+                    <div class="flex items-center text-gray-700">
+                        <i class="fas fa-clock text-blue-600 mr-2"></i>
+                        <span>10:15 - 10:45</span>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-600 mb-5">
+                    <p><i class="fas fa-map-marker-alt mr-1"></i> Rua São José, 789 - Centro</p>
+                    <p class="mt-1"><i class="fas fa-phone mr-1"></i> (62) 3433-3003</p>
+                </div>
+                
+                <button class="w-full py-3 rounded-lg text-white font-bold btn-primary">
+                    <i class="fas fa-calendar-check mr-2"></i> Agendar Esta Vaga
+                </button>
+            </div>
+        </div>
+        
+        <!-- Informações adicionais -->
+        <div class="bg-white rounded-xl p-6 card-shadow">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Como funciona o agendamento?</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex flex-col items-center text-center p-4">
+                    <div class="bg-blue-100 rounded-full p-4 mb-4">
+                        <i class="fas fa-search text-blue-700 text-2xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">1. Encontre uma vaga</h4>
+                    <p class="text-gray-600">Veja todas as vagas disponíveis nos postos de saúde do município</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center p-4">
+                    <div class="bg-blue-100 rounded-full p-4 mb-4">
+                        <i class="fas fa-mouse-pointer text-blue-700 text-2xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">2. Selecione e confirme</h4>
+                    <p class="text-gray-600">Escolha a vaga desejada e confirme o agendamento com um clique</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center p-4">
+                    <div class="bg-blue-100 rounded-full p-4 mb-4">
+                        <i class="fas fa-calendar-day text-blue-700 text-2xl"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-800 mb-2">3. Compareça no horário</h4>
+                    <p class="text-gray-600">No dia agendado, compareça à unidade de saúde sem filas</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-1">Sistema proposto por Angatu Sistemas</h4>
+                        <p class="text-gray-600 text-sm">Transformação Digital na Saúde Municipal</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <p class="text-gray-500 text-sm">
+                            <i class="fas fa-phone-alt mr-1"></i> (62) 99178-9937 | 
+                            <i class="fas fa-envelope ml-2 mr-1"></i> angatusistemas@gmail.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos da interface
+        const loginScreen = document.getElementById('loginScreen');
+        const registerScreen = document.getElementById('registerScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const loginButton = document.getElementById('loginButton');
+        const goToRegisterButton = document.getElementById('goToRegisterButton');
+        const backToLoginButton = document.getElementById('backToLoginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const registerButton = document.getElementById('registerButton');
+        
+        // Função para simular login
+        loginButton.addEventListener('click', function() {
+            // Em um sistema real, aqui seria feita a validação das credenciais
+            // Para este protótipo, apenas alternamos as telas
+            loginScreen.classList.add('hidden');
+            registerScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+        });
+        
+        // Navegação para a tela de cadastro
+        goToRegisterButton.addEventListener('click', function() {
+            loginScreen.classList.add('hidden');
+            registerScreen.classList.remove('hidden');
+            dashboardScreen.classList.add('hidden');
+        });
+        
+        // Voltar para a tela de login
+        backToLoginButton.addEventListener('click', function() {
+            loginScreen.classList.remove('hidden');
+            registerScreen.classList.add('hidden');
+            dashboardScreen.classList.add('hidden');
+        });
+        
+        // Cadastro (apenas visual)
+        registerButton.addEventListener('click', function() {
+            alert("Este é um protótipo visual. Em um sistema real, os dados seriam enviados para cadastro.");
+            // Voltar para login após "cadastro"
+            loginScreen.classList.remove('hidden');
+            registerScreen.classList.add('hidden');
+            dashboardScreen.classList.add('hidden');
+        });
+        
+        // Logout
+        logoutButton.addEventListener('click', function() {
+            loginScreen.classList.remove('hidden');
+            registerScreen.classList.add('hidden');
+            dashboardScreen.classList.add('hidden');
+        });
+        
+        // Adicionar funcionalidade aos botões de agendamento
+        document.querySelectorAll('.btn-primary').forEach(button => {
+            if (button.textContent.includes('Agendar')) {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.card-shadow');
+                    const doctorName = card.querySelector('h3').textContent;
+                    const postinho = card.querySelector('.font-medium').textContent;
+                    const data = card.querySelectorAll('.text-gray-700')[1].textContent;
+                    const horario = card.querySelectorAll('.text-gray-700')[2].textContent;
+                    
+                    alert(`Agendamento simulado:\n\nMédico: ${doctorName}\nUnidade: ${postinho}\nData: ${data}\nHorário: ${horario}\n\nEm um sistema real, o agendamento seria confirmado e salvo.`);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
