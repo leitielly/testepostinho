@@ -2,435 +2,1213 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proposta - Sistema de Agendamento Municipal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Saúde Porangatu · App Municipal</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* ---------- RESET E VARIÁVEIS ---------- */
         * {
-            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
+
+        :root {
+            --azul: #0B3B5C;
+            --azul-claro: #E2F0FA;
+            --verde: #2E7D32;
+            --verde-claro: #E8F5E9;
+            --cinza: #F5F7FA;
+            --cinza-medio: #DAE2EA;
+            --branco: #FFFFFF;
+            --texto: #1E2F3F;
+        }
+
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-color: var(--cinza);
+            color: var(--texto);
+            line-height: 1.5;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* ---------- ABORDAGEM MOBILE-FIRST ---------- */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            width: 100%;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--branco);
+            border-right: 1px solid var(--cinza-medio);
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-left: 4px;
+        }
+
+        .sidebar-logo i {
+            font-size: 2rem;
+            color: var(--azul);
+        }
+
+        .sidebar-logo span {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--azul);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 18px;
+            border-radius: 20px;
+            color: #2B4B6E;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+            cursor: pointer;
+            font-size: 1.1rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .sidebar-nav a i {
+            width: 28px;
+            font-size: 1.4rem;
+            color: #4A6F8F;
+        }
+
+        .sidebar-nav a.active {
+            background: var(--azul);
+            color: white;
+            box-shadow: 0 4px 12px rgba(11,59,92,0.3);
+        }
+
+        .sidebar-nav a.active i {
+            color: white;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--cinza-medio);
+            margin: 20px 0 10px;
+        }
+
+        /* Menu toggle (hamburguer) - ajustado tamanho */
+        .menu-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1100;
+            background: var(--azul);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            width: 48px;
+            height: 48px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(11,59,92,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .menu-toggle i {
+            font-size: 1.6rem;
+        }
+
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Conteúdo principal */
+        .main-content {
+            flex: 1;
+            width: 100%;
+            padding: 80px 16px 24px;
+            transition: none;
+            margin-left: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
-        .logo-container {
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            border-radius: 12px;
-            padding: 15px 25px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+
+        /* Cabeçalho */
+        .content-header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 28px;
         }
-        .card-shadow {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        .content-header h1 {
+            font-size: 1.8rem;
+            color: var(--azul);
+            line-height: 1.2;
+            font-weight: 700;
         }
-        .card-shadow:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+
+        .greeting {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--verde);
+            display: block;
+            margin-top: 4px;
         }
+
+        .header-actions {
+            align-self: flex-end;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: -56px;
+            margin-bottom: 8px;
+        }
+
+        .header-actions i {
+            font-size: 1.5rem;
+            color: #3F607D;
+            background: #E9F2FA;
+            padding: 10px;
+            border-radius: 50%;
+        }
+
+        .avatar {
+            background: var(--verde);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: default;
+            box-shadow: 0 2px 8px rgba(46,125,50,0.2);
+        }
+
+        /* Páginas */
+        .page {
+            display: none;
+            flex: 1;
+        }
+
+        .page.active-page {
+            display: block;
+        }
+
+        /* Dashboard cards */
+        .dashboard-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .card {
+            background: var(--branco);
+            border: 1px solid var(--cinza-medio);
+            border-radius: 28px;
+            padding: 24px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            width: 100%;
+        }
+
+        .card:active {
+            background: var(--azul-claro);
+            transform: scale(0.98);
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            background: var(--azul-claro);
+            padding: 16px;
+            border-radius: 30px;
+            color: var(--azul);
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--azul);
+        }
+
+        /* Seção de próximas consultas (destaque) */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--azul);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--verde);
+            font-size: 1.5rem;
+        }
+
+        .appointment-list {
+            background: var(--branco);
+            border-radius: 24px;
+            padding: 12px;
+        }
+
+        .appointment-item {
+            background: #F9FCFE;
+            border-left: 6px solid var(--verde);
+            border-radius: 20px;
+            padding: 18px 16px;
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .appointment-info p {
+            margin: 4px 0;
+            color: #1F405B;
+            font-size: 1rem;
+        }
+
+        .appointment-info strong {
+            color: var(--azul);
+        }
+
+        .appointment-item div:last-child {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-remarcar, .btn-cancelar {
+            border: none;
+            padding: 12px 0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            background: transparent;
+            border: 2px solid var(--cinza-medio);
+            flex: 1;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .btn-remarcar:active, .btn-cancelar:active {
+            background: #f0f0f0;
+        }
+
+        .btn-cancelar {
+            border-color: #f5c2c2;
+            color: #b13e3e;
+        }
+
+        /* Formulários */
+        .form-card {
+            background: var(--branco);
+            border-radius: 28px;
+            padding: 24px 20px;
+            max-width: 100%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--azul);
+            font-size: 1rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1.5px solid var(--cinza-medio);
+            border-radius: 30px;
+            font-size: 1rem;
+            background: var(--branco);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        select {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%230B3B5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 18px;
+        }
+
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0 30px;
+            justify-content: flex-start;
+        }
+
+        .time-slot {
+            background: white;
+            border: 2px solid var(--cinza-medio);
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 0 1 auto;
+        }
+
+        .time-slot.selected {
+            background: var(--azul);
+            border-color: var(--azul);
+            color: white;
+        }
+
         .btn-primary {
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            transition: all 0.3s ease;
+            background: var(--azul);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px -8px var(--azul);
+            width: 100%;
+            transition: 0.2s;
         }
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #2a5298 0%, #3a6bc5 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.3);
+
+        .btn-primary:active {
+            background: #0a2f4a;
+            transform: scale(0.98);
         }
-        .input-field {
-            border: 1px solid #d1d5db;
-            transition: border 0.3s ease;
+
+        /* Unidades */
+        .unidades-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        .input-field:focus {
-            border-color: #2a5298;
-            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+
+        .unidade-card {
+            background: var(--branco);
+            border-radius: 24px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--cinza-medio);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .unidade-card i {
+            font-size: 2.2rem;
+            color: var(--verde);
+            background: var(--verde-claro);
+            padding: 14px;
+            border-radius: 28px;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .unidade-card div {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: var(--verde-claro);
+            color: var(--verde);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 30px;
+            margin-top: 6px;
+        }
+
+        /* Perfil */
+        .perfil-card {
+            background: var(--branco);
+            border-radius: 28px;
+            padding: 24px 20px;
+            max-width: 100%;
+        }
+
+        .perfil-field {
+            background: #F6FAFE;
+            border-radius: 20px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .perfil-field .label {
+            font-weight: 600;
+            color: var(--azul);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .perfil-field .label i {
+            color: var(--verde);
+            width: 18px;
+            font-size: 1rem;
+        }
+
+        .perfil-field .value {
+            font-size: 1.1rem;
+            color: #1F2C3A;
+            word-break: break-word;
+            margin-left: 26px; /* alinhamento com o texto do label */
+        }
+
+        /* Footer */
+        .app-footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px 0 10px;
+            border-top: 1px solid var(--cinza-medio);
+            color: #6B8CA3;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .app-footer i {
+            color: var(--verde);
+            margin: 0 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Telas de autenticação com footer */
+        .auth-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(145deg, var(--azul-claro), var(--branco));
+            padding: 16px;
+            width: 100%;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            margin: auto;
+        }
+
+        .auth-card {
+            background: var(--branco);
+            border-radius: 36px;
+            padding: 32px 24px;
+            box-shadow: 0 25px 50px -12px rgba(11,59,92,0.25);
+        }
+
+        .logo-center {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo-center i {
+            font-size: 3rem;
+            color: var(--azul);
+            background: var(--azul-claro);
+            padding: 18px;
+            border-radius: 30px;
+        }
+
+        .logo-center h2 {
+            color: var(--azul);
+            margin: 16px 0 4px;
+            font-size: 1.6rem;
+        }
+
+        .input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .auth-links {
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+
+        .auth-links a {
+            color: var(--azul);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .auth-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6B8CA3;
+            font-size: 0.9rem;
+        }
+
+        /* ---------- TABLETS (≥600px) ---------- */
+        @media (min-width: 600px) {
+            .main-content {
+                padding: 90px 24px 24px;
+            }
+
+            .dashboard-cards {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .content-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .header-actions {
+                margin-top: 0;
+                align-self: center;
+            }
+
+            .greeting {
+                display: inline;
+                margin-left: 12px;
+            }
+
+            .unidades-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .perfil-field {
+                flex-direction: row;
+                align-items: center;
+                gap: 20px;
+                padding: 14px 20px;
+            }
+
+            .perfil-field .label {
+                min-width: 140px;
+                font-size: 1rem;
+            }
+
+            .perfil-field .value {
+                margin-left: 0;
+                font-size: 1.1rem;
+            }
+        }
+
+        /* ---------- DESKTOP (≥900px) ---------- */
+        @media (min-width: 900px) {
+            .menu-toggle, .sidebar-overlay {
+                display: none !important;
+            }
+
+            .sidebar {
+                transform: translateX(0);
+                position: fixed;
+                width: 280px;
+                box-shadow: none;
+            }
+
+            .main-content {
+                margin-left: 280px;
+                padding: 30px 36px;
+            }
+
+            .dashboard-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .unidades-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .content-header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 30px 20px;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 30px -10px rgba(11,59,92,0.2);
+            }
+        }
+
+        /* Ajustes para telas muito pequenas (≤360px) */
+        @media (max-width: 360px) {
+            .btn-remarcar, .btn-cancelar {
+                font-size: 0.9rem;
+                padding: 10px 0;
+            }
+
+            .time-slot {
+                padding: 10px 16px;
+                font-size: 0.95rem;
+            }
+
+            .card i {
+                font-size: 2.2rem;
+                padding: 12px;
+            }
+
+            .card h3 {
+                font-size: 1.1rem;
+            }
+
+            .auth-card {
+                padding: 24px 16px;
+            }
+
+            .unidade-card i {
+                font-size: 2rem;
+                padding: 12px;
+                min-width: 60px;
+            }
+
+            .perfil-field .value {
+                margin-left: 22px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
-    
-    <!-- Tela de Login (inicial) -->
-    <div id="loginScreen" class="w-full max-w-md">
-        <div class="logo-container text-center mb-8">
-            <div class="flex flex-col items-center">
-                <div class="bg-white rounded-full p-4 mb-4 shadow-lg">
-                    <i class="fas fa-stethoscope text-4xl text-blue-800"></i>
+<body>
+    <!-- Botão menu hamburguer (mobile) - ajustado -->
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Container principal que alterna entre autenticação e app -->
+    <div id="authContainer" class="auth-body" style="display: flex;">
+        <!-- Página de Login -->
+        <div id="loginPage" class="auth-container">
+            <div class="auth-card">
+                <div class="logo-center">
+                    <i class="fas fa-heartbeat"></i>
+                    <h2>Saúde Porangatu</h2>
+                    <span>Acesso do cidadão</span>
                 </div>
-                <h1 class="text-2xl font-bold text-white">Prefeitura Municipal de</h1>
-                <h2 class="text-3xl font-bold text-white">Porangatu - GO</h2>
-                <p class="text-blue-200 mt-2">Sistema de Agendamento de Consultas</p>
+                <form onsubmit="event.preventDefault(); entrarNoSistema();">
+                    <div class="input-group">
+                        <label><i class="far fa-user"></i> CPF ou Cartão SUS</label>
+                        <input type="text" placeholder="000.000.000-00 ou 123 4567 8910" value="123.456.789-00" readonly disabled>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> Senha</label>
+                        <input type="password" value="········" readonly disabled>
+                    </div>
+                    <button type="submit" class="btn-primary full-width"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+                    <div class="auth-links">
+                        <a onclick="mostrarCadastro()">Criar conta</a>
+                        <a href="#">Esqueci a senha</a>
+                    </div>
+                </form>
+            </div>
+            <!-- Footer na autenticação -->
+            <div class="auth-footer">
+                <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
             </div>
         </div>
-        
-        <div class="bg-white rounded-xl p-8 card-shadow">
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Acessar Sistema</h3>
-            <p class="text-gray-600 mb-6">Entre com suas credenciais para agendar consultas</p>
-            
-            <div class="space-y-5">
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="email">E-mail</label>
-                    <input type="email" id="email" class="w-full p-3 border rounded-lg input-field" placeholder="seu.email@exemplo.com" value="usuario@exemplo.com">
+
+        <!-- Página de Cadastro -->
+        <div id="cadastroPage" class="auth-container" style="display: none;">
+            <div class="auth-card">
+                <div class="logo-center">
+                    <i class="fas fa-user-plus"></i>
+                    <h2>Criar sua conta</h2>
                 </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="password">Senha</label>
-                    <input type="password" id="password" class="w-full p-3 border rounded-lg input-field" placeholder="Digite sua senha" value="123456">
-                </div>
-                
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="remember" class="h-4 w-4 text-blue-600 rounded">
-                        <label for="remember" class="ml-2 text-gray-700">Lembrar-me</label>
+                <form onsubmit="event.preventDefault(); cadastrarEIrParaLogin();">
+                    <div class="input-group"><label>Nome completo</label><input type="text" value="Maria da Silva" readonly disabled></div>
+                    <div class="input-group"><label>CPF</label><input type="text" value="123.456.789-00" readonly disabled></div>
+                    <div class="input-group"><label>Número do Cartão SUS</label><input type="text" value="123 4567 8910 1123" readonly disabled></div>
+                    <div class="input-row">
+                        <div class="input-group"><label>Data de nascimento</label><input type="text" value="15/03/1985" readonly disabled></div>
+                        <div class="input-group"><label>Telefone</label><input type="text" value="(62) 99999-1234" readonly disabled></div>
                     </div>
-                    <a href="#" class="text-blue-700 hover:text-blue-900 font-medium text-sm">Esqueceu a senha?</a>
-                </div>
-                
-                <button id="loginButton" class="w-full py-3 rounded-lg text-white font-bold btn-primary">
-                    <i class="fas fa-sign-in-alt mr-2"></i> Entrar no Sistema
-                </button>
-                
-                <div class="text-center mt-6">
-                    <p class="text-gray-600">Não possui cadastro?</p>
-                    <button id="goToRegisterButton" class="mt-2 py-2 px-6 border border-blue-700 text-blue-700 rounded-lg font-medium hover:bg-blue-50 transition">
-                        <i class="fas fa-user-plus mr-2"></i> Criar Conta
-                    </button>
-                </div>
+                    <div class="input-group"><label>E-mail</label><input type="email" value="maria.silva@email.com" readonly disabled></div>
+                    <div class="input-group"><label>Senha</label><input type="password" value="········" readonly disabled></div>
+                    <button type="submit" class="btn-primary full-width"><i class="fas fa-check-circle"></i> Cadastrar</button>
+                    <div class="auth-links"><a onclick="mostrarLogin()">Voltar ao login</a></div>
+                </form>
             </div>
-            
-            <div class="mt-8 pt-6 border-t border-gray-200 text-center">
-                <p class="text-gray-500 text-sm">Sistema proposto por <span class="font-bold text-blue-800">Angatu Sistemas</span></p>
-                <p class="text-gray-400 text-xs mt-1">Proposta de Transformação Digital - Gestão Estratégica de Fluxo e Acesso à Saúde Municipal</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tela de Cadastro -->
-    <div id="registerScreen" class="w-full max-w-md hidden">
-        <div class="logo-container text-center mb-8">
-            <div class="flex flex-col items-center">
-                <div class="bg-white rounded-full p-4 mb-4 shadow-lg">
-                    <i class="fas fa-user-plus text-4xl text-blue-800"></i>
-                </div>
-                <h1 class="text-2xl font-bold text-white">Criar Nova Conta</h1>
-                <p class="text-blue-200 mt-2">Cadastro rápido e seguro</p>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl p-8 card-shadow">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800">Formulário de Cadastro</h3>
-                <button id="backToLoginButton" class="text-blue-700 hover:text-blue-900">
-                    <i class="fas fa-arrow-left mr-1"></i> Voltar
-                </button>
-            </div>
-            
-            <p class="text-gray-600 mb-6">Preencha os dados abaixo para criar sua conta no sistema municipal de saúde</p>
-            
-            <div class="space-y-5">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2 font-medium" for="nome">Nome</label>
-                        <input type="text" id="nome" class="w-full p-3 border rounded-lg input-field" placeholder="Seu nome">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 mb-2 font-medium" for="sobrenome">Sobrenome</label>
-                        <input type="text" id="sobrenome" class="w-full p-3 border rounded-lg input-field" placeholder="Seu sobrenome">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="cpf">CPF</label>
-                    <input type="text" id="cpf" class="w-full p-3 border rounded-lg input-field" placeholder="000.000.000-00">
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="emailCadastro">E-mail</label>
-                    <input type="email" id="emailCadastro" class="w-full p-3 border rounded-lg input-field" placeholder="seu.email@exemplo.com">
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="telefone">Telefone</label>
-                    <input type="tel" id="telefone" class="w-full p-3 border rounded-lg input-field" placeholder="(62) 9XXXX-XXXX">
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="senhaCadastro">Senha</label>
-                    <input type="password" id="senhaCadastro" class="w-full p-3 border rounded-lg input-field" placeholder="Crie uma senha segura">
-                </div>
-                
-                <div>
-                    <label class="block text-gray-700 mb-2 font-medium" for="confirmarSenha">Confirmar Senha</label>
-                    <input type="password" id="confirmarSenha" class="w-full p-3 border rounded-lg input-field" placeholder="Digite a senha novamente">
-                </div>
-                
-                <div class="flex items-start">
-                    <input type="checkbox" id="termos" class="h-5 w-5 text-blue-600 rounded mt-1">
-                    <label for="termos" class="ml-2 text-gray-700 text-sm">
-                        Concordo com os <a href="#" class="text-blue-700 hover:text-blue-900 font-medium">termos de uso</a> e <a href="#" class="text-blue-700 hover:text-blue-900 font-medium">política de privacidade</a> do sistema.
-                    </label>
-                </div>
-                
-                <button id="registerButton" class="w-full py-3 rounded-lg text-white font-bold btn-primary">
-                    <i class="fas fa-check-circle mr-2"></i> Criar Conta
-                </button>
-                
-                <p class="text-gray-500 text-sm text-center mt-4">
-                    <i class="fas fa-info-circle mr-1"></i> Este é um protótipo. O cadastro não será processado.
-                </p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tela de Dashboard com médicos e vagas -->
-    <div id="dashboardScreen" class="w-full max-w-6xl hidden">
-        <div class="logo-container flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-white">Sistema de Agendamento</h1>
-                <p class="text-blue-200">Prefeitura Municipal de Porangatu - GO</p>
-            </div>
-            <div class="flex items-center">
-                <div class="bg-white rounded-full p-2 mr-3">
-                    <i class="fas fa-user-md text-blue-800 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-white font-medium">Usuário Demo</p>
-                    <button id="logoutButton" class="text-blue-200 hover:text-white text-sm">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Sair
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Vagas de Consulta Disponíveis</h2>
-            <p class="text-gray-600">Selecione uma vaga disponível para agendar sua consulta</p>
-            
-            <div class="flex items-center mt-4 bg-blue-50 p-4 rounded-lg">
-                <i class="fas fa-info-circle text-blue-600 text-xl mr-3"></i>
-                <p class="text-blue-800">
-                    <span class="font-bold">Transparência total:</span> Todas as vagas disponíveis na rede municipal são exibidas em tempo real.
-                </p>
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            <!-- Vaga 1 -->
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Dr. Carlos Silva</h3>
-                        <p class="text-gray-600">Clínico Geral</p>
-                    </div>
-                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">Disponível</span>
-                </div>
-                
-                <div class="mb-5">
-                    <div class="flex items-center text-gray-700 mb-2">
-                        <i class="fas fa-hospital text-blue-600 mr-2"></i>
-                        <span class="font-medium">Postinho de Saúde Central</span>
-                    </div>
-                    <div class="flex items-center text-gray-700 mb-2">
-                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
-                        <span>15 de Julho, 2026</span>
-                    </div>
-                    <div class="flex items-center text-gray-700">
-                        <i class="fas fa-clock text-blue-600 mr-2"></i>
-                        <span>08:30 - 09:00</span>
-                    </div>
-                </div>
-                
-                <div class="text-sm text-gray-600 mb-5">
-                    <p><i class="fas fa-map-marker-alt mr-1"></i> Rua das Flores, 123 - Centro</p>
-                    <p class="mt-1"><i class="fas fa-phone mr-1"></i> (62) 3433-1001</p>
-                </div>
-                
-                <button class="w-full py-3 rounded-lg text-white font-bold btn-primary">
-                    <i class="fas fa-calendar-check mr-2"></i> Agendar Esta Vaga
-                </button>
-            </div>
-            
-            <!-- Vaga 2 -->
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Dra. Ana Santos</h3>
-                        <p class="text-gray-600">Pediatra</p>
-                    </div>
-                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">2 Vagas</span>
-                </div>
-                
-                <div class="mb-5">
-                    <div class="flex items-center text-gray-700 mb-2">
-                        <i class="fas fa-hospital text-blue-600 mr-2"></i>
-                        <span class="font-medium">UBS Vila Nova</span>
-                    </div>
-                    <div class="flex items-center text-gray-700 mb-2">
-                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
-                        <span>16 de Julho, 2026</span>
-                    </div>
-                    <div class="flex items-center text-gray-700">
-                        <i class="fas fa-clock text-blue-600 mr-2"></i>
-                        <span>14:00 - 14:30</span>
-                    </div>
-                </div>
-                
-                <div class="text-sm text-gray-600 mb-5">
-                    <p><i class="fas fa-map-marker-alt mr-1"></i> Av. Brasil, 456 - Vila Nova</p>
-                    <p class="mt-1"><i class="fas fa-phone mr-1"></i> (62) 3433-2002</p>
-                </div>
-                
-                <button class="w-full py-3 rounded-lg text-white font-bold btn-primary">
-                    <i class="fas fa-calendar-check mr-2"></i> Agendar Esta Vaga
-                </button>
-            </div>
-            
-            <!-- Vaga 3 -->
-            <div class="bg-white rounded-xl p-6 card-shadow">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Dr. Marcos Oliveira</h3>
-                        <p class="text-gray-600">Cardiologista</p>
-                    </div>
-                    <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">Disponível</span>
-                </div>
-                
-                <div class="mb-5">
-                    <div class="flex items-center text-gray-700 mb-2">
-                        <i class="fas fa-hospital text-blue-600 mr-2"></i>
-                        <span class="font-medium">Posto de Saúde São José</span>
-                    </div>
-                    <div class="flex items-center text-gray-700 mb-2">
-                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
-                        <span>17 de Julho, 2026</span>
-                    </div>
-                    <div class="flex items-center text-gray-700">
-                        <i class="fas fa-clock text-blue-600 mr-2"></i>
-                        <span>10:15 - 10:45</span>
-                    </div>
-                </div>
-                
-                <div class="text-sm text-gray-600 mb-5">
-                    <p><i class="fas fa-map-marker-alt mr-1"></i> Rua São José, 789 - Centro</p>
-                    <p class="mt-1"><i class="fas fa-phone mr-1"></i> (62) 3433-3003</p>
-                </div>
-                
-                <button class="w-full py-3 rounded-lg text-white font-bold btn-primary">
-                    <i class="fas fa-calendar-check mr-2"></i> Agendar Esta Vaga
-                </button>
-            </div>
-        </div>
-        
-        <!-- Informações adicionais -->
-        <div class="bg-white rounded-xl p-6 card-shadow">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Como funciona o agendamento?</h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="flex flex-col items-center text-center p-4">
-                    <div class="bg-blue-100 rounded-full p-4 mb-4">
-                        <i class="fas fa-search text-blue-700 text-2xl"></i>
-                    </div>
-                    <h4 class="font-bold text-gray-800 mb-2">1. Encontre uma vaga</h4>
-                    <p class="text-gray-600">Veja todas as vagas disponíveis nos postos de saúde do município</p>
-                </div>
-                
-                <div class="flex flex-col items-center text-center p-4">
-                    <div class="bg-blue-100 rounded-full p-4 mb-4">
-                        <i class="fas fa-mouse-pointer text-blue-700 text-2xl"></i>
-                    </div>
-                    <h4 class="font-bold text-gray-800 mb-2">2. Selecione e confirme</h4>
-                    <p class="text-gray-600">Escolha a vaga desejada e confirme o agendamento com um clique</p>
-                </div>
-                
-                <div class="flex flex-col items-center text-center p-4">
-                    <div class="bg-blue-100 rounded-full p-4 mb-4">
-                        <i class="fas fa-calendar-day text-blue-700 text-2xl"></i>
-                    </div>
-                    <h4 class="font-bold text-gray-800 mb-2">3. Compareça no horário</h4>
-                    <p class="text-gray-600">No dia agendado, compareça à unidade de saúde sem filas</p>
-                </div>
-            </div>
-            
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-1">Sistema proposto por Angatu Sistemas</h4>
-                        <p class="text-gray-600 text-sm">Transformação Digital na Saúde Municipal</p>
-                    </div>
-                    <div class="mt-4 md:mt-0">
-                        <p class="text-gray-500 text-sm">
-                            <i class="fas fa-phone-alt mr-1"></i> (62) 99178-9937 | 
-                            <i class="fas fa-envelope ml-2 mr-1"></i> angatusistemas@gmail.com
-                        </p>
-                    </div>
-                </div>
+            <div class="auth-footer">
+                <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
             </div>
         </div>
     </div>
 
+    <!-- Aplicação principal (com sidebar) - inicialmente oculta -->
+    <div id="appContainer" class="app-layout" style="display: none;">
+        <!-- sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>Saúde Porangatu</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a onclick="mudarPagina('dashboard'); fecharMenuMobile()" id="menuDashboard" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a onclick="mudarPagina('agendamento'); fecharMenuMobile()" id="menuAgendamento"><i class="fas fa-calendar-plus"></i> Agendar consulta</a>
+                <a onclick="mudarPagina('consultas'); fecharMenuMobile()" id="menuConsultas"><i class="fas fa-clock"></i> Minhas consultas</a>
+                <a onclick="mudarPagina('unidades'); fecharMenuMobile()" id="menuUnidades"><i class="fas fa-map-marker-alt"></i> Unidades de saúde</a>
+                <a onclick="mudarPagina('perfil'); fecharMenuMobile()" id="menuPerfil"><i class="fas fa-user-circle"></i> Perfil</a>
+                <div class="sidebar-divider"></div>
+                <a onclick="sair()"><i class="fas fa-sign-out-alt"></i> Sair</a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo principal com páginas -->
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div id="dashboardPage" class="page active-page">
+                <header class="content-header">
+                    <h1>Dashboard <span class="greeting">Olá, Maria Silva</span></h1>
+                    <div class="header-actions">
+                        <i class="fas fa-bell"></i>
+                        <div class="avatar">MS</div>
+                    </div>
+                </header>
+                <div class="dashboard-cards">
+                    <div class="card" onclick="mudarPagina('agendamento'); fecharMenuMobile()">
+                        <i class="fas fa-calendar-plus"></i>
+                        <h3>Agendar consulta</h3>
+                    </div>
+                    <div class="card" onclick="mudarPagina('consultas'); fecharMenuMobile()">
+                        <i class="fas fa-clock"></i>
+                        <h3>Minhas consultas</h3>
+                    </div>
+                    <div class="card" onclick="mudarPagina('unidades'); fecharMenuMobile()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Unidades</h3>
+                    </div>
+                    <div class="card" onclick="mudarPagina('perfil'); fecharMenuMobile()">
+                        <i class="fas fa-user-circle"></i>
+                        <h3>Perfil</h3>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <i class="fas fa-calendar-check"></i> Próximas consultas
+                </div>
+                <div id="nextAppointmentsList" class="appointment-list">Carregando...</div>
+
+                <!-- Footer interno -->
+                <footer class="app-footer">
+                    <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
+                </footer>
+            </div>
+
+            <!-- Agendamento -->
+            <div id="agendamentoPage" class="page">
+                <header class="content-header">
+                    <h1>Agendar consulta</h1>
+                    <div class="header-actions"><i class="fas fa-bell"></i><div class="avatar">MS</div></div>
+                </header>
+                <div class="form-card">
+                    <div class="input-group">
+                        <label>Unidade de saúde</label>
+                        <select id="unidadeSelect">
+                            <option>UBS Jardim América</option>
+                            <option>UBS Centro</option>
+                            <option>UBS Vila Esperança</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Médico / especialidade</label>
+                        <select id="medicoSelect">
+                            <option>Dr. Lemos (Clínico geral)</option>
+                            <option>Dra. Nunes (Pediatria)</option>
+                            <option>Dra. Castro (Ginecologia)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Data da consulta</label>
+                        <input type="date" id="dataConsulta" value="2025-06-10">
+                    </div>
+                    <label>Horários disponíveis</label>
+                    <div class="time-slots" id="timeSlots">
+                        <span class="time-slot" data-time="08:00">08:00</span>
+                        <span class="time-slot" data-time="08:30">08:30</span>
+                        <span class="time-slot selected" data-time="09:00">09:00</span>
+                        <span class="time-slot" data-time="09:30">09:30</span>
+                        <span class="time-slot" data-time="10:00">10:00</span>
+                        <span class="time-slot" data-time="10:30">10:30</span>
+                    </div>
+                    <button id="confirmarAgendamento" class="btn-primary full-width"><i class="fas fa-check-circle"></i> Confirmar agendamento</button>
+                </div>
+                <footer class="app-footer">
+                    <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
+                </footer>
+            </div>
+
+            <!-- Minhas consultas -->
+            <div id="consultasPage" class="page">
+                <header class="content-header">
+                    <h1>Minhas consultas</h1>
+                    <div class="header-actions"><i class="fas fa-bell"></i><div class="avatar">MS</div></div>
+                </header>
+                <div id="consultasList" class="appointment-list"></div>
+                <footer class="app-footer">
+                    <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
+                </footer>
+            </div>
+
+            <!-- Unidades -->
+            <div id="unidadesPage" class="page">
+                <header class="content-header">
+                    <h1>Unidades de saúde</h1>
+                    <div class="header-actions"><i class="fas fa-bell"></i><div class="avatar">MS</div></div>
+                </header>
+                <div class="unidades-grid">
+                    <div class="unidade-card">
+                        <i class="fas fa-hospital"></i> 
+                        <div>
+                            <strong>UBS Jardim América</strong><br>
+                            Rua das Flores, 345 · 7h às 19h
+                            <div class="status-badge"><i class="fas fa-clock"></i> Aberto agora</div>
+                        </div>
+                    </div>
+                    <div class="unidade-card">
+                        <i class="fas fa-hospital"></i> 
+                        <div>
+                            <strong>UBS Centro</strong><br>
+                            Av. Tocantins, 1020 · 7h às 21h
+                            <div class="status-badge"><i class="fas fa-clock"></i> Aberto agora</div>
+                        </div>
+                    </div>
+                    <div class="unidade-card">
+                        <i class="fas fa-hospital"></i> 
+                        <div>
+                            <strong>UBS Vila Esperança</strong><br>
+                            Rua 14, 550 · 8h às 17h
+                            <div class="status-badge"><i class="fas fa-clock"></i> Fecha às 17h</div>
+                        </div>
+                    </div>
+                    <div class="unidade-card">
+                        <i class="fas fa-hospital"></i> 
+                        <div>
+                            <strong>Policlínica Municipal</strong><br>
+                            Av. Brasil, 2000 · 24h
+                            <div class="status-badge"><i class="fas fa-clock"></i> 24 horas</div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="app-footer">
+                    <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
+                </footer>
+            </div>
+
+            <!-- Perfil -->
+            <div id="perfilPage" class="page">
+                <header class="content-header">
+                    <h1>Meu perfil</h1>
+                    <div class="header-actions"><i class="fas fa-bell"></i><div class="avatar">MS</div></div>
+                </header>
+                <div class="perfil-card">
+                    <div class="perfil-field">
+                        <span class="label"><i class="fas fa-user"></i> Nome completo</span>
+                        <span class="value">Maria Aparecida da Silva</span>
+                    </div>
+                    <div class="perfil-field">
+                        <span class="label"><i class="fas fa-id-card"></i> CPF</span>
+                        <span class="value">123.456.789-00</span>
+                    </div>
+                    <div class="perfil-field">
+                        <span class="label"><i class="fas fa-id-card"></i> Cartão SUS</span>
+                        <span class="value">123 4567 8910 1123</span>
+                    </div>
+                    <div class="perfil-field">
+                        <span class="label"><i class="fas fa-calendar-alt"></i> Nascimento</span>
+                        <span class="value">15/03/1985</span>
+                    </div>
+                    <div class="perfil-field">
+                        <span class="label"><i class="fas fa-phone"></i> Telefone</span>
+                        <span class="value">(62) 99999-1234</span>
+                    </div>
+                    <div class="perfil-field">
+                        <span class="label"><i class="fas fa-envelope"></i> E-mail</span>
+                        <span class="value">maria.silva@email.com</span>
+                    </div>
+                    <button id="editarPerfil" class="btn-primary"><i class="fas fa-edit"></i> Editar informações</button>
+                </div>
+                <footer class="app-footer">
+                    <i class="fas fa-code"></i> Protótipo desenvolvido por Angatu Sistemas
+                </footer>
+            </div>
+        </main>
+    </div>
+
     <script>
-        // Elementos da interface
-        const loginScreen = document.getElementById('loginScreen');
-        const registerScreen = document.getElementById('registerScreen');
-        const dashboardScreen = document.getElementById('dashboardScreen');
-        const loginButton = document.getElementById('loginButton');
-        const goToRegisterButton = document.getElementById('goToRegisterButton');
-        const backToLoginButton = document.getElementById('backToLoginButton');
-        const logoutButton = document.getElementById('logoutButton');
-        const registerButton = document.getElementById('registerButton');
-        
-        // Função para simular login
-        loginButton.addEventListener('click', function() {
-            // Em um sistema real, aqui seria feita a validação das credenciais
-            // Para este protótipo, apenas alternamos as telas
-            loginScreen.classList.add('hidden');
-            registerScreen.classList.add('hidden');
-            dashboardScreen.classList.remove('hidden');
-        });
-        
-        // Navegação para a tela de cadastro
-        goToRegisterButton.addEventListener('click', function() {
-            loginScreen.classList.add('hidden');
-            registerScreen.classList.remove('hidden');
-            dashboardScreen.classList.add('hidden');
-        });
-        
-        // Voltar para a tela de login
-        backToLoginButton.addEventListener('click', function() {
-            loginScreen.classList.remove('hidden');
-            registerScreen.classList.add('hidden');
-            dashboardScreen.classList.add('hidden');
-        });
-        
-        // Cadastro (apenas visual)
-        registerButton.addEventListener('click', function() {
-            alert("Este é um protótipo visual. Em um sistema real, os dados seriam enviados para cadastro.");
-            // Voltar para login após "cadastro"
-            loginScreen.classList.remove('hidden');
-            registerScreen.classList.add('hidden');
-            dashboardScreen.classList.add('hidden');
-        });
-        
-        // Logout
-        logoutButton.addEventListener('click', function() {
-            loginScreen.classList.remove('hidden');
-            registerScreen.classList.add('hidden');
-            dashboardScreen.classList.add('hidden');
-        });
-        
-        // Adicionar funcionalidade aos botões de agendamento
-        document.querySelectorAll('.btn-primary').forEach(button => {
-            if (button.textContent.includes('Agendar')) {
-                button.addEventListener('click', function() {
-                    const card = this.closest('.card-shadow');
-                    const doctorName = card.querySelector('h3').textContent;
-                    const postinho = card.querySelector('.font-medium').textContent;
-                    const data = card.querySelectorAll('.text-gray-700')[1].textContent;
-                    const horario = card.querySelectorAll('.text-gray-700')[2].textContent;
-                    
-                    alert(`Agendamento simulado:\n\nMédico: ${doctorName}\nUnidade: ${postinho}\nData: ${data}\nHorário: ${horario}\n\nEm um sistema real, o agendamento seria confirmado e salvo.`);
+        // ----- DADOS SIMULADOS (localStorage) -----
+        const STORAGE_KEY = 'porangatu_consultas';
+        if (!localStorage.getItem(STORAGE_KEY)) {
+            const mock = [
+                { id: 1, unidade: 'UBS Jardim América', medico: 'Dr. Lemos', data: '12/06/2025', hora: '09:00' },
+                { id: 2, unidade: 'UBS Centro', medico: 'Dra. Nunes', data: '18/06/2025', hora: '14:30' },
+            ];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(mock));
+        }
+
+        // ----- CONTROLE DE TELAS (autenticação vs app) -----
+        function mostrarLogin() {
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('cadastroPage').style.display = 'none';
+        }
+
+        function mostrarCadastro() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('cadastroPage').style.display = 'block';
+        }
+
+        function cadastrarEIrParaLogin() {
+            alert('Conta criada com sucesso! Faça o login.');
+            mostrarLogin();
+        }
+
+        function entrarNoSistema() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            carregarProximasConsultas();
+            carregarConsultas();
+            ativarMenu('dashboard');
+        }
+
+        function sair() {
+            if (confirm('Deseja sair do sistema?')) {
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('authContainer').style.display = 'flex';
+                mostrarLogin();
+                fecharMenuMobile();
+            }
+        }
+
+        // ----- NAVEGAÇÃO ENTRE PÁGINAS DO APP -----
+        function mudarPagina(pagina) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(pagina + 'Page').classList.add('active-page');
+            ativarMenu(pagina);
+
+            if (pagina === 'consultas') carregarConsultas();
+            if (pagina === 'dashboard') carregarProximasConsultas();
+        }
+
+        function ativarMenu(pagina) {
+            document.querySelectorAll('.sidebar-nav a').forEach(link => link.classList.remove('active'));
+            const menuId = 'menu' + pagina.charAt(0).toUpperCase() + pagina.slice(1);
+            const el = document.getElementById(menuId);
+            if (el) el.classList.add('active');
+        }
+
+        // ----- FUNÇÕES DAS CONSULTAS -----
+        function carregarConsultas() {
+            const lista = document.getElementById('consultasList');
+            if (!lista) return;
+
+            const consultas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            if (consultas.length === 0) {
+                lista.innerHTML = '<p class="vazio">Nenhuma consulta agendada.</p>';
+                return;
+            }
+
+            let html = '';
+            consultas.forEach(cons => {
+                html += `
+                    <div class="appointment-item" data-id="${cons.id}">
+                        <div class="appointment-info">
+                            <p><strong>${cons.unidade}</strong> · ${cons.medico}</p>
+                            <p><i class="fas fa-calendar" style="color:#2E7D32;"></i> ${cons.data} · ${cons.hora}</p>
+                        </div>
+                        <div>
+                            <button class="btn-remarcar" onclick="remarcarConsulta(${cons.id})"><i class="fas fa-redo-alt"></i> Remarcar</button>
+                            <button class="btn-cancelar" onclick="cancelarConsulta(${cons.id})"><i class="fas fa-times"></i> Cancelar</button>
+                        </div>
+                    </div>
+                `;
+            });
+            lista.innerHTML = html;
+        }
+
+        window.cancelarConsulta = function(id) {
+            if (!confirm('Deseja cancelar esta consulta?')) return;
+            let consultas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            consultas = consultas.filter(c => c.id != id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(consultas));
+            carregarConsultas();
+            carregarProximasConsultas();
+        };
+
+        window.remarcarConsulta = function(id) {
+            alert('Remarcar redirecionaria para agendamento (simulação).');
+            mudarPagina('agendamento');
+        };
+
+        function carregarProximasConsultas() {
+            const container = document.getElementById('nextAppointmentsList');
+            if (!container) return;
+
+            const consultas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            if (consultas.length === 0) {
+                container.innerHTML = '<p>Nenhuma consulta nos próximos dias.</p>';
+                return;
+            }
+
+            let html = '';
+            consultas.slice(0, 2).forEach(cons => {
+                html += `
+                    <div class="appointment-item" style="margin:10px 0;">
+                        <div><strong>${cons.unidade}</strong> · ${cons.medico}<br>${cons.data} · ${cons.hora}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ----- AGENDAMENTO -----
+        document.addEventListener('DOMContentLoaded', function() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    slots.forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
                 });
+            });
+
+            const btnConfirmar = document.getElementById('confirmarAgendamento');
+            if (btnConfirmar) {
+                btnConfirmar.addEventListener('click', function() {
+                    const unidade = document.getElementById('unidadeSelect')?.value || 'UBS Jardim América';
+                    const medico = document.getElementById('medicoSelect')?.value || 'Dr. Lemos';
+                    const dataInput = document.getElementById('dataConsulta')?.value || '2025-06-10';
+                    const data = new Date(dataInput + 'T00:00');
+                    const dataFormatada = data.toLocaleDateString('pt-BR');
+                    const horaElem = document.querySelector('.time-slot.selected');
+                    const hora = horaElem ? horaElem.getAttribute('data-time') : '09:00';
+
+                    const novaConsulta = {
+                        id: Date.now(),
+                        unidade: unidade,
+                        medico: medico,
+                        data: dataFormatada,
+                        hora: hora
+                    };
+
+                    let consultas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+                    consultas.push(novaConsulta);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(consultas));
+
+                    alert('Consulta agendada com sucesso!');
+                    mudarPagina('consultas');
+                });
+            }
+
+            const editarPerfil = document.getElementById('editarPerfil');
+            if (editarPerfil) {
+                editarPerfil.addEventListener('click', function() {
+                    alert('Modo edição (simulação). Em um sistema real, os campos seriam habilitados.');
+                });
+            }
+        });
+
+        // ----- MENU MOBILE (HAMBURGUER) -----
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function fecharMenuMobile() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', fecharMenuMobile);
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 900) {
+                fecharMenuMobile();
             }
         });
     </script>
